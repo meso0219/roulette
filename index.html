@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ルーレット</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #09090F;
+  --surface: #13131C;
+  --surface2: #1C1C28;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --accent: #8B5CF6;
+  --accent-dim: rgba(139, 92, 246, 0.15);
+  --accent-light: #A78BFA;
+  --text: #F2F2F8;
+  --text-muted: #888;
+  --text-dim: #555;
+  --danger: #F87171;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.logo-text { color: var(--text); }
+.logo-text em { color: var(--accent-light); font-style: normal; }
+
+.header-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+main {
+  flex: 1;
+  display: flex;
+  gap: 32px;
+  padding: 32px 28px;
+  max-width: 1060px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.wheel-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+}
+
+.wheel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wheel {
+  display: block;
+  border-radius: 50%;
+}
+
+.pointer-wrap {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.pointer {
+  width: 0;
+  height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-right: 22px solid var(--accent);
+}
+
+.pointer-stem {
+  width: 10px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.result-area {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.result-badge {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  width: 100%;
+  word-break: break-word;
+}
+
+@keyframes pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.spin-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 15px 52px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.spin-btn:hover:not(:disabled) { background: var(--accent-light); transform: translateY(-1px); }
+.spin-btn:active:not(:disabled) { transform: translateY(0); }
+.spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.item-count {
+  font-size: 11px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.item-list::-webkit-scrollbar { width: 3px; }
+.item-list::-webkit-scrollbar-track { background: transparent; }
+.item-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  background: var(--surface2);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.item-row:focus-within { border-color: var(--border-hover); }
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.item-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  min-width: 0;
+}
+
+.item-del {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+
+.item-del:hover { color: var(--danger); }
+
+.add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.add-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+
+.add-input:focus { border-color: rgba(139, 92, 246, 0.5); }
+.add-input::placeholder { color: var(--text-dim); }
+
+.add-btn {
+  background: var(--accent-dim);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 8px;
+  color: var(--accent-light);
+  font-size: 19px;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: background 0.15s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.add-btn:hover { background: rgba(139, 92, 246, 0.25); }
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.preset-btn {
+  font-size: 11px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 10px;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.preset-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 3px 0;
+}
+
+.hist-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hist-num {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 16px;
+  text-align: right;
+}
+
+.empty-msg {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 10px 0;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.clear-btn:hover { color: var(--danger); }
+
+footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 11px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 700px) {
+  main { flex-direction: column; align-items: center; padding: 20px 16px; gap: 24px; }
+  .sidebar { width: 100%; max-width: 420px; }
+  header { padding: 14px 16px; }
+  .header-hint { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">&#9654;</div>
+    <div class="logo-text">ルー<em>レット</em></div>
+  </div>
+  <div class="header-hint">項目をクリックして編集できます</div>
+</header>
+
+<main>
+  <div class="wheel-section">
+    <div class="wheel-container" id="wheelContainer">
+      <canvas id="wheel"></canvas>
+      <div class="pointer-wrap">
+        <div class="pointer-stem"></div>
+        <div class="pointer"></div>
+      </div>
+    </div>
+
+    <div class="result-area" id="resultArea"></div>
+
+    <button class="spin-btn" id="spinBtn" onclick="spin()">スピン</button>
+  </div>
+
+  <div class="sidebar">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">項目</div>
+        <span class="item-count" id="itemCount">0</span>
+      </div>
+      <div class="item-list" id="itemList"></div>
+      <div class="add-row">
+        <input class="add-input" id="addInput" placeholder="新しい項目..."
+               maxlength="30"
+               onkeydown="if(event.key==='Enter') addItem()">
+        <button class="add-btn" onclick="addItem()" title="追加">＋</button>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="loadPreset('yn')">はい / いいえ</button>
+        <button class="preset-btn" onclick="loadPreset('week')">曜日</button>
+        <button class="preset-btn" onclick="loadPreset('num')">1〜6</button>
+        <button class="preset-btn" onclick="loadPreset('default')">サンプル</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">結果履歴</div>
+        <button class="clear-btn" onclick="clearHistory()">クリア</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="empty-msg">まだ結果がありません</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>クリックした項目は直接編集できます &nbsp;·&nbsp; 最低2項目必要です</footer>
+
+<script>
+const COLORS = [
+  '#FF6B6B','#FF9F43','#FECA57','#1DD1A1',
+  '#48DBFB','#54A0FF','#C44EE0','#FF9FF3',
+  '#FF6348','#0ABDE3','#10AC84','#EE5A24'
+];
+
+const PRESETS = {
+  default: ['選択肢 A','選択肢 B','選択肢 C','選択肢 D','選択肢 E','選択肢 F'],
+  yn:      ['はい','いいえ'],
+  week:    ['月曜','火曜','水曜','木曜','金曜','土曜','日曜'],
+  num:     ['1','2','3','4','5','6']
+};
+
+let items   = [...PRESETS.default];
+let angle   = 0;
+let spinning = false;
+let history  = [];
+let audioCtx = null;
+
+const canvas  = document.getElementById('wheel');
+const ctx     = canvas.getContext('2d');
+let SIZE = 380;
+
+function setSize() {
+  const wrap = document.getElementById('wheelContainer');
+  const avail = Math.min(wrap.parentElement.offsetWidth - 32, 420);
+  SIZE = Math.max(240, avail);
+  canvas.width  = SIZE;
+  canvas.height = SIZE;
+  drawWheel();
+}
+
+function drawWheel() {
+  const cx = SIZE / 2, cy = SIZE / 2;
+  const r  = cx - 6;
+  const n  = items.length;
+  ctx.clearRect(0, 0, SIZE, SIZE);
+
+  if (n === 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2*Math.PI);
+    ctx.fillStyle = '#1C1C28';
+    ctx.fill();
+    ctx.fillStyle = '#555';
+    ctx.textAlign = 'center';
+    ctx.font = '14px Inter, sans-serif';
+    ctx.fillText('項目を追加してください', cx, cy);
+    return;
+  }
+
+  const arc = (2*Math.PI) / n;
+  const fs  = Math.max(10, Math.min(15, Math.floor(170 / n)));
+  const maxChars = Math.max(4, Math.floor(12 - n * 0.5));
+
+  items.forEach((item, i) => {
+    const s = angle + i * arc;
+    const e = s + arc;
+    const c = COLORS[i % COLORS.length];
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, s, e);
+    ctx.closePath();
+    ctx.fillStyle = c;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(9,9,15,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(s + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.font = `600 ${fs}px Inter, system-ui, sans-serif`;
+    ctx.shadowColor = 'rgba(0,0,0,0.55)';
+    ctx.shadowBlur  = 3;
+    const label = item.length > maxChars ? item.slice(0, maxChars-1)+'…' : item;
+    ctx.fillText(label, r - 14, fs * 0.38);
+    ctx.restore();
+  });
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r+1, 0, 2*Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, 0, 2*Math.PI);
+  ctx.fillStyle = '#09090F';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 7, 0, 2*Math.PI);
+  ctx.fillStyle = '#8B5CF6';
+  ctx.fill();
+}
+
+function getWinner() {
+  const n = items.length;
+  if (!n) return null;
+  const arc = (2*Math.PI) / n;
+  const norm = ((-angle) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+  return { item: items[Math.floor(norm / arc) % n], idx: Math.floor(norm / arc) % n };
+}
+
+function playTick() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = 600 + Math.random()*300;
+    osc.type = 'triangle';
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+  } catch(_) {}
+}
+
+function spin() {
+  if (spinning || items.length < 2) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('resultArea').innerHTML = '';
+
+  const total    = (5 + Math.random()*6) * 2*Math.PI + Math.random()*2*Math.PI;
+  const start    = angle;
+  const target   = start + total;
+  const dur      = 3200 + Math.random()*1400;
+  const t0       = performance.now();
+  const segAngle = (2*Math.PI) / items.length;
+  let lastSeg    = Math.floor((angle % (2*Math.PI)) / segAngle);
+
+  function frame(now) {
+    const t = Math.min((now - t0) / dur, 1);
+    const e = 1 - Math.pow(1 - t, 4);
+    angle = start + (target - start) * e;
+
+    const curSeg = Math.floor((angle % (2*Math.PI)) / segAngle);
+    if (curSeg !== lastSeg && t < 0.92) { playTick(); lastSeg = curSeg; }
+
+    drawWheel();
+
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      angle   = target;
+      spinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      const w = getWinner();
+      if (w) showResult(w);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function showResult(w) {
+  const color = COLORS[w.idx % COLORS.length];
+  document.getElementById('resultArea').innerHTML =
+    `<div class="result-badge" style="background:${color}22;border:1px solid ${color}55;color:${color};">
+       &#127881; ${esc(w.item)}
+     </div>`;
+  history.unshift({ item: w.item, color });
+  if (history.length > 30) history.pop();
+  renderHistory();
+}
+
+function renderItems() {
+  const list = document.getElementById('itemList');
+  list.innerHTML = '';
+  document.getElementById('itemCount').textContent = items.length;
+
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-msg">項目がありません</div>';
+    return;
+  }
+
+  items.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+    sw.style.background = COLORS[i % COLORS.length];
+
+    const inp = document.createElement('input');
+    inp.className = 'item-input';
+    inp.value = item;
+    inp.maxLength = 30;
+    inp.setAttribute('aria-label', `項目 ${i+1}`);
+    inp.addEventListener('change', () => {
+      const v = inp.value.trim();
+      if (v) { items[i] = v; drawWheel(); renderItems(); }
+      else inp.value = items[i];
+    });
+
+    const del = document.createElement('button');
+    del.className = 'item-del';
+    del.textContent = '×';
+    del.title = '削除';
+    del.addEventListener('click', () => {
+      if (items.length <= 2) { flash(del); return; }
+      items.splice(i, 1);
+      renderItems();
+      drawWheel();
+    });
+
+    row.appendChild(sw);
+    row.appendChild(inp);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function flash(el) {
+  el.style.color = '#F87171';
+  setTimeout(() => el.style.color = '', 500);
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-msg">まだ結果がありません</div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) =>
+    `<div class="history-item">
+       <span class="hist-num">${i+1}</span>
+       <div class="hist-dot" style="background:${h.color}"></div>
+       <span>${esc(h.item)}</span>
+     </div>`
+  ).join('');
+}
+
+function addItem() {
+  const inp = document.getElementById('addInput');
+  const v   = inp.value.trim();
+  if (!v) return;
+  items.push(v);
+  inp.value = '';
+  renderItems();
+  drawWheel();
+  document.getElementById('itemList').scrollTop = 9999;
+}
+
+function clearHistory() {
+  history = [];
+  renderHistory();
+}
+
+function loadPreset(key) {
+  items = [...PRESETS[key]];
+  angle = 0;
+  document.getElementById('resultArea').innerHTML = '';
+  renderItems();
+  drawWheel();
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.addEventListener('resize', () => { clearTimeout(window._rsz); window._rsz = setTimeout(setSize, 80); });
+setSize();
+renderItems();
+renderHistory();
+</script>
+</body>
+</html>
