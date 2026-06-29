@@ -205,101 +205,64 @@ main {
   border-radius: 99px;
 }
 
-.item-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 320px;
-  overflow-y: auto;
-  margin-bottom: 12px;
-}
-
-.item-list::-webkit-scrollbar { width: 3px; }
-.item-list::-webkit-scrollbar-track { background: transparent; }
-.item-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
-.item-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 9px;
-  background: var(--surface2);
-  border-radius: 8px;
-  border: 1px solid transparent;
-  transition: border-color 0.15s;
-}
-
-.item-row:focus-within { border-color: var(--border-hover); }
-
-.swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.item-input {
-  flex: 1;
-  background: none;
-  border: none;
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-  outline: none;
-  min-width: 0;
-}
-
-.item-del {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0 2px;
-  flex-shrink: 0;
-  transition: color 0.15s;
-  font-family: inherit;
-}
-
-.item-del:hover { color: var(--danger); }
-
-.add-row {
-  display: flex;
-  gap: 8px;
-}
-
-.add-input {
-  flex: 1;
+.items-textarea {
+  width: 100%;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
   font-size: 13px;
   font-family: inherit;
-  padding: 8px 11px;
+  padding: 10px 12px;
   outline: none;
+  resize: none;
+  height: 180px;
+  line-height: 1.7;
   transition: border-color 0.15s;
-  min-width: 0;
+  display: block;
+  margin-bottom: 10px;
 }
 
-.add-input:focus { border-color: rgba(139, 92, 246, 0.5); }
-.add-input::placeholder { color: var(--text-dim); }
+.items-textarea:focus { border-color: rgba(139, 92, 246, 0.5); }
+.items-textarea::placeholder { color: var(--text-dim); }
+.items-textarea::-webkit-scrollbar { width: 3px; }
+.items-textarea::-webkit-scrollbar-track { background: transparent; }
+.items-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 
-.add-btn {
-  background: var(--accent-dim);
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  border-radius: 8px;
-  color: var(--accent-light);
-  font-size: 19px;
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.quick-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.qa-btn {
+  font-size: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
   cursor: pointer;
-  padding: 0 12px;
-  transition: background 0.15s;
+  padding: 4px 10px;
   font-family: inherit;
-  flex-shrink: 0;
+  transition: all 0.12s;
+  white-space: nowrap;
 }
 
-.add-btn:hover { background: rgba(139, 92, 246, 0.25); }
+.qa-btn:hover {
+  background: var(--accent-dim);
+  border-color: rgba(139, 92, 246, 0.35);
+  color: var(--accent-light);
+}
 
 .presets {
   display: flex;
@@ -421,16 +384,17 @@ footer {
   <div class="sidebar">
     <div class="card">
       <div class="card-header">
-        <div class="card-title">項目</div>
+        <div class="card-title">選択肢</div>
         <span class="item-count" id="itemCount">0</span>
       </div>
-      <div class="item-list" id="itemList"></div>
-      <div class="add-row">
-        <input class="add-input" id="addInput" placeholder="新しい項目..."
-               maxlength="30"
-               onkeydown="if(event.key==='Enter') addItem()">
-        <button class="add-btn" onclick="addItem()" title="追加">＋</button>
-      </div>
+      <textarea class="items-textarea" id="itemsTextarea"
+        placeholder="選択肢を1行ずつ入力&#10;例：&#10;ラーメン&#10;カレー&#10;パスタ"
+        spellcheck="false"></textarea>
+
+      <div class="section-label">クイック追加</div>
+      <div class="quick-add" id="quickAdd"></div>
+
+      <div class="section-label">プリセット（全置き換え）</div>
       <div class="presets">
         <button class="preset-btn" onclick="loadPreset('yn')">はい / いいえ</button>
         <button class="preset-btn" onclick="loadPreset('week')">曜日</button>
@@ -451,7 +415,7 @@ footer {
   </div>
 </main>
 
-<footer>クリックした項目は直接編集できます &nbsp;·&nbsp; 最低2項目必要です</footer>
+<footer>1行ごとに1つの選択肢 &nbsp;·&nbsp; 最低2項目必要です</footer>
 
 <script>
 const COLORS = [
@@ -467,15 +431,55 @@ const PRESETS = {
   num:     ['1','2','3','4','5','6']
 };
 
+const QUICK_LABELS = [
+  'はい','いいえ','たぶん','A','B','C','D','E','F',
+  '○','△','×','1','2','3','4','5','6'
+];
+
 let items   = [...PRESETS.default];
 let angle   = 0;
 let spinning = false;
 let history  = [];
 let audioCtx = null;
 
-const canvas  = document.getElementById('wheel');
-const ctx     = canvas.getContext('2d');
+const canvas   = document.getElementById('wheel');
+const ctx      = canvas.getContext('2d');
+const textarea = document.getElementById('itemsTextarea');
 let SIZE = 380;
+
+function parseTextarea() {
+  const lines = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  items = lines;
+  document.getElementById('itemCount').textContent = items.length;
+  drawWheel();
+}
+
+function setTextarea(arr) {
+  textarea.value = arr.join('\n');
+  parseTextarea();
+}
+
+textarea.addEventListener('input', parseTextarea);
+
+function appendQuick(label) {
+  const val = textarea.value;
+  const needsNewline = val.length > 0 && !val.endsWith('\n');
+  textarea.value = (needsNewline ? val + '\n' : val) + label + '\n';
+  parseTextarea();
+  textarea.focus();
+  textarea.scrollTop = textarea.scrollHeight;
+}
+
+function buildQuickAdd() {
+  const wrap = document.getElementById('quickAdd');
+  QUICK_LABELS.forEach(lbl => {
+    const btn = document.createElement('button');
+    btn.className = 'qa-btn';
+    btn.textContent = lbl;
+    btn.addEventListener('click', () => appendQuick(lbl));
+    wrap.appendChild(btn);
+  });
+}
 
 function setSize() {
   const wrap = document.getElementById('wheelContainer');
@@ -627,58 +631,6 @@ function showResult(w) {
   renderHistory();
 }
 
-function renderItems() {
-  const list = document.getElementById('itemList');
-  list.innerHTML = '';
-  document.getElementById('itemCount').textContent = items.length;
-
-  if (!items.length) {
-    list.innerHTML = '<div class="empty-msg">項目がありません</div>';
-    return;
-  }
-
-  items.forEach((item, i) => {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-
-    const sw = document.createElement('div');
-    sw.className = 'swatch';
-    sw.style.background = COLORS[i % COLORS.length];
-
-    const inp = document.createElement('input');
-    inp.className = 'item-input';
-    inp.value = item;
-    inp.maxLength = 30;
-    inp.setAttribute('aria-label', `項目 ${i+1}`);
-    inp.addEventListener('change', () => {
-      const v = inp.value.trim();
-      if (v) { items[i] = v; drawWheel(); renderItems(); }
-      else inp.value = items[i];
-    });
-
-    const del = document.createElement('button');
-    del.className = 'item-del';
-    del.textContent = '×';
-    del.title = '削除';
-    del.addEventListener('click', () => {
-      if (items.length <= 2) { flash(del); return; }
-      items.splice(i, 1);
-      renderItems();
-      drawWheel();
-    });
-
-    row.appendChild(sw);
-    row.appendChild(inp);
-    row.appendChild(del);
-    list.appendChild(row);
-  });
-}
-
-function flash(el) {
-  el.style.color = '#F87171';
-  setTimeout(() => el.style.color = '', 500);
-}
-
 function renderHistory() {
   const list = document.getElementById('historyList');
   if (!history.length) {
@@ -694,28 +646,16 @@ function renderHistory() {
   ).join('');
 }
 
-function addItem() {
-  const inp = document.getElementById('addInput');
-  const v   = inp.value.trim();
-  if (!v) return;
-  items.push(v);
-  inp.value = '';
-  renderItems();
-  drawWheel();
-  document.getElementById('itemList').scrollTop = 9999;
-}
-
 function clearHistory() {
   history = [];
   renderHistory();
 }
 
 function loadPreset(key) {
-  items = [...PRESETS[key]];
   angle = 0;
   document.getElementById('resultArea').innerHTML = '';
-  renderItems();
-  drawWheel();
+  setTextarea(PRESETS[key]);
+  renderHistory();
 }
 
 function esc(s) {
@@ -723,8 +663,9 @@ function esc(s) {
 }
 
 window.addEventListener('resize', () => { clearTimeout(window._rsz); window._rsz = setTimeout(setSize, 80); });
+buildQuickAdd();
+setTextarea(PRESETS.default);
 setSize();
-renderItems();
 renderHistory();
 </script>
 </body>
