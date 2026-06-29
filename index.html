@@ -592,7 +592,7 @@ function spin() {
   const total    = (5 + Math.random()*6) * 2*Math.PI + Math.random()*2*Math.PI;
   const start    = angle;
   const target   = start + total;
-  const dur      = 3200 + Math.random()*1400;
+  const dur      = 1400 + Math.random()*500;
   const t0       = performance.now();
   const segAngle = (2*Math.PI) / items.length;
   let lastSeg    = Math.floor((angle % (2*Math.PI)) / segAngle);
