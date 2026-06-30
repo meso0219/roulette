@@ -17,12 +17,12 @@
     }
 
     :root {
-      /* ホワイトベースのカラーパレットに修正 */
+      /* ホワイトベースのカラーパレット */
       --bg: #F8FAFC;
       --surface: #FFFFFF;
       --surface2: #F1F5F9;
       --border: #E2E8F0;
-      --border-h: #000103;
+      --border-h: #CBD5E1;
       --accent: #8B5CF6;
       --accent-dim: rgba(139, 92, 246, 0.1);
       --accent-light: #A78BFA;
@@ -136,13 +136,17 @@
     /* ══════════════════════════════════════
    ROULETTE PAGE
 ══════════════════════════════════════ */
+    .roulette-layout,
+    .casting-layout {
+      padding: 32px 28px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
     .roulette-layout {
       display: flex;
       gap: 32px;
-      padding: 32px 28px;
       max-width: 1060px;
-      margin: 0 auto;
-      width: 100%;
     }
 
     .wheel-section {
@@ -260,8 +264,6 @@
 ══════════════════════════════════════ */
     .casting-layout {
       max-width: 860px;
-      margin: 0 auto;
-      padding: 32px 28px;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -316,7 +318,8 @@
       font-size: 20px;
     }
 
-    .cast-textarea {
+    .cast-textarea,
+    .items-textarea {
       width: 100%;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -327,18 +330,28 @@
       padding: 12px 14px;
       outline: none;
       resize: none;
-      height: 220px;
       line-height: 1.7;
       transition: border-color 0.15s, box-shadow 0.15s;
       display: block;
     }
 
-    .cast-textarea:focus {
+    .cast-textarea {
+      height: 220px;
+    }
+
+    .items-textarea {
+      height: 180px;
+      margin-bottom: 14px;
+    }
+
+    .cast-textarea:focus,
+    .items-textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-dim);
     }
 
-    .cast-textarea::placeholder {
+    .cast-textarea::placeholder,
+    .items-textarea::placeholder {
       color: var(--dim);
     }
 
@@ -485,33 +498,6 @@
       padding: 4px 10px;
       border-radius: 99px;
       font-weight: 600;
-    }
-
-    .items-textarea {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: inherit;
-      padding: 12px 14px;
-      outline: none;
-      resize: none;
-      height: 180px;
-      line-height: 1.7;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      display: block;
-      margin-bottom: 14px;
-    }
-
-    .items-textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-dim);
-    }
-
-    .items-textarea::placeholder {
-      color: var(--dim);
     }
 
     .section-label {
@@ -665,44 +651,140 @@
       background: var(--muted);
     }
 
-    /* ── RESPONSIVE ─────────────────────── */
+    /* ── スマホ（画面幅700px以下）専用の超最適化スタイル ──────────────── */
     @media (max-width: 700px) {
       header {
-        padding: 0 16px;
-      }
-
-      .logo {
-        font-size: 15px;
-        margin-right: 12px;
-      }
-
-      .tab-btn {
-        font-size: 13px;
         padding: 0 12px;
       }
 
+      .logo {
+        font-size: 14px;
+        margin-right: 8px;
+        padding: 10px 0;
+      }
+
+      .tab-btn {
+        font-size: 12px;
+        padding: 0 8px;
+      }
+
+      /* 🎡 ルーレット画面のスマホ最適化 */
       .roulette-layout {
         flex-direction: column;
         align-items: center;
-        padding: 24px 16px;
-        gap: 24px;
+        padding: 12px;
+        gap: 14px;
+      }
+
+      .wheel-section {
+        gap: 12px;
+      }
+
+      .wheel-container {
+        max-width: 280px;
+      }
+
+      .result-area {
+        min-height: 46px;
+      }
+
+      .result-badge {
+        padding: 8px 16px;
+        font-size: 16px;
+      }
+
+      .spin-btn {
+        padding: 12px 40px;
+        font-size: 16px;
       }
 
       .r-sidebar {
         width: 100%;
-        max-width: 420px;
+        max-width: 100%;
+        gap: 12px;
       }
 
+      /* 🎭 配役シャッフル画面のスマホ最適化 */
       .casting-layout {
-        padding: 24px 16px;
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .casting-desc {
+        padding: 10px 12px;
+        font-size: 12px;
+        margin-bottom: 0;
       }
 
       .casting-inputs {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
       }
 
       .casting-arrow {
         display: none;
+        /* スマホでは2カラムになるため非表示 */
+      }
+
+      .cast-col-label {
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      .cast-textarea,
+      .items-textarea {
+        height: 110px;
+        font-size: 13px;
+        padding: 8px;
+        margin-bottom: 4px;
+      }
+
+      .role-quick,
+      .player-quick,
+      .quick-add,
+      .presets {
+        margin-top: 4px;
+        margin-bottom: 8px;
+        gap: 4px;
+      }
+
+      .qa-btn,
+      .preset-btn,
+      .rq-btn,
+      .pq-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+
+      .cast-btn-row {
+        margin-top: 2px;
+        justify-content: center;
+      }
+
+      .cast-btn {
+        padding: 12px 32px;
+        font-size: 15px;
+        width: 100%;
+      }
+
+      .cast-card {
+        border-radius: 8px;
+      }
+
+      .cast-player,
+      .cast-role {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .card {
+        padding: 12px;
+        border-radius: 10px;
+      }
+
+      footer {
+        padding: 12px;
+        font-size: 10px;
       }
     }
   </style>
@@ -729,6 +811,7 @@
 
     <div class="page" id="page-roulette">
       <div class="roulette-layout">
+
         <div class="wheel-section">
           <div class="wheel-container" id="wheelContainer">
             <canvas id="wheel"></canvas>
@@ -795,7 +878,6 @@
             <div class="player-quick" id="playerQuick"></div>
           </div>
 
-
           <div class="casting-arrow">→</div>
 
           <div>
@@ -850,6 +932,11 @@
         p.classList.toggle('active', p.id === 'page-' + tab));
       document.querySelectorAll('.tab-btn').forEach(b =>
         b.classList.toggle('active', b.dataset.tab === tab));
+
+      // 非表示時に幅0になる問題を回避するため、ルーレットタブを開いた際にサイズを再計算
+      if (tab === 'roulette') {
+        setTimeout(setSize, 10);
+      }
     }
 
     /* ══════════════════════════════
@@ -896,7 +983,7 @@
       const needNL = v.length > 0 && !v.endsWith('\n');
       textarea.value = (needNL ? v + '\n' : v) + label + '\n';
       parseTextarea();
-      textarea.focus();
+      // textarea.focus(); /* スマホでのキーボード暴発を防ぐため削除 */
       textarea.scrollTop = textarea.scrollHeight;
     }
 
@@ -913,23 +1000,19 @@
 
     function setSize() {
       const wrap = document.getElementById('wheelContainer');
+      if (!wrap || wrap.parentElement.offsetWidth === 0) return; // 非表示時の計算エラー回避
 
-      // 親要素の横幅から余白を引いた、表示可能な最大幅を計算（最大値を 500 に引き上げ）
       const avail = Math.min(wrap.parentElement.offsetWidth - 16, 500);
       SIZE = Math.max(280, avail);
 
-      // 画面のピクセル密度（DPI）を取得
       const dpr = window.devicePixelRatio || 1;
 
-      // 1. Canvasの「ブラウザ上の見た目のサイズ（CSS）」をしっかり固定
       canvas.style.width = SIZE + 'px';
       canvas.style.height = SIZE + 'px';
 
-      // 2. Canvasの「内部の解像度（画素数）」をDPI倍にして高画質化
       canvas.width = SIZE * dpr;
       canvas.height = SIZE * dpr;
 
-      // 3. 描画コンテキストのスケールをリセットしてから再設定
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
 
@@ -943,7 +1026,7 @@
 
       if (!n) {
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-        ctx.fillStyle = '#E2E8F0'; /* 空の時の色もライトに変更 */
+        ctx.fillStyle = '#E2E8F0';
         ctx.fill();
         ctx.fillStyle = '#64748B'; ctx.textAlign = 'center';
         ctx.font = '14px Inter,sans-serif';
@@ -972,10 +1055,9 @@
         ctx.restore();
       });
 
-      // 中央の装飾（ライトテーマ合わせ）
       ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
       ctx.fillStyle = '#FFFFFF'; ctx.fill();
-      ctx.shadowColor = 'rgba(0,0,0,0.1)'; ctx.shadowBlur = 4; ctx.fill(); // 簡単なドロップシャドウ
+      ctx.shadowColor = 'rgba(0,0,0,0.1)'; ctx.shadowBlur = 4; ctx.fill();
 
       ctx.beginPath(); ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
       ctx.fillStyle = '#8B5CF6'; ctx.fill();
@@ -1009,7 +1091,7 @@
 
       const total = (5 + Math.random() * 6) * 2 * Math.PI + Math.random() * 2 * Math.PI;
       const start = rAngle, target = start + total;
-      const dur = 500 + Math.random() * 600, t0 = performance.now();
+      const dur = 3200 + Math.random() * 1400, t0 = performance.now();
       const sa = 2 * Math.PI / rItems.length;
       let lastSeg = Math.floor((rAngle % (2 * Math.PI)) / sa);
 
@@ -1061,8 +1143,8 @@
        CASTING
     ══════════════════════════════ */
     const ROLE_QUICK = [
-      '村人', '人狼', '狂人', '予言者', '霊媒師',
-      '騎士', 'ボディーガード', '妖狐', '市民', '裏切り者', '狩人'
+      '村人', '人狼', '狂人', '占い師', '霊媒師',
+      '騎士', 'てるてる坊主', '妖狐', '共有', '怪盗', '狂信'
     ];
 
     const playersTA = document.getElementById('playersTA');
@@ -1085,6 +1167,7 @@
       const needNL = v.length > 0 && !v.endsWith('\n');
       rolesTA.value = (needNL ? v + '\n' : v) + label + '\n';
       updateCastCounts();
+      /* rolesTA.focus(); スマホでのキーボード暴発を防ぐため削除 */
       rolesTA.scrollTop = rolesTA.scrollHeight;
     }
 
@@ -1097,6 +1180,24 @@
         btn.addEventListener('click', () => appendRole(lbl));
         wrap.appendChild(btn);
       });
+    }
+
+    function buildPlayerQuick() {
+      const wrap = document.getElementById('playerQuick');
+      for (let i = 3; i <= 12; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'pq-btn';
+        btn.textContent = i + '人';
+        btn.addEventListener('click', () => {
+          const lines = [];
+          for (let j = 1; j <= i; j++) {
+            lines.push(j);
+          }
+          playersTA.value = lines.join('\n');
+          updateCastCounts();
+        });
+        wrap.appendChild(btn);
+      }
     }
 
     function shuffle(arr) {
@@ -1136,32 +1237,13 @@
       }
     }
 
-    function buildPlayerQuick() {
-      const wrap = document.getElementById('playerQuick');
-      for (let i = 3; i <= 12; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'pq-btn';
-        btn.textContent = i + '人';
-        btn.addEventListener('click', () => {
-          // 1からiまでの数字を改行区切りで生成
-          const lines = [];
-          for (let j = 1; j <= i; j++) {
-            lines.push(j);
-          }
-          // テキストエリアにセットしてカウントを更新
-          playersTA.value = lines.join('\n');
-          updateCastCounts();
-        });
-        wrap.appendChild(btn);
-      }
-    }
     /* ── INIT ── */
     window.addEventListener('resize', () => { clearTimeout(window._rsz); window._rsz = setTimeout(setSize, 80); });
     buildQuickAdd();
     buildRoleQuick();
     buildPlayerQuick();
-    updateCastCounts();
     setTextarea(PRESETS.default);
+    updateCastCounts();
     setSize();
     renderHistory();
   </script>
